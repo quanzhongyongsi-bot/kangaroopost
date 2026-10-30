@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kangaroo Post — Creator Studio (Sandbox Demo)</title>
+<style>
+  :root { --green:#5b7553; --green-dark:#43573d; --bg:#f6f4ee; --card:#ffffff; --line:#ddd6c8; --text:#2c2c2c; --muted:#77705f; --accent:#e4572e; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", Arial, sans-serif; background:var(--bg); color:var(--text); }
+  header { background:var(--green-dark); color:#fff; padding:14px 22px; display:flex; align-items:center; gap:12px; }
+  header .logo { font-size:26px; }
+  header h1 { font-size:20px; margin:0; font-weight:600; }
+  header .badge { margin-left:auto; background:#fff; color:var(--green-dark); border-radius:20px; padding:4px 12px; font-size:12px; font-weight:700; letter-spacing:.4px; }
+  main { max-width:880px; margin:24px auto; padding:0 16px 48px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px; margin-bottom:18px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .card h2 { margin:0 0 6px; font-size:17px; }
+  .card p.sub { margin:0 0 14px; color:var(--muted); font-size:13px; }
+  .step-num { display:inline-block; background:var(--green); color:#fff; width:24px; height:24px; border-radius:50%; text-align:center; line-height:24px; font-size:13px; font-weight:700; margin-right:8px; }
+  button { cursor:pointer; border:none; border-radius:10px; padding:11px 20px; font-size:15px; font-weight:600; }
+  .btn-tiktok { background:#111; color:#fff; }
+  .btn-primary { background:var(--green); color:#fff; }
+  .btn-primary:disabled { background:#b9bfae; cursor:not-allowed; }
+  .btn-ghost { background:#fff; border:1px solid var(--line); color:var(--text); padding:7px 14px; font-size:13px; }
+  .creator { display:flex; align-items:center; gap:14px; }
+  .avatar { width:52px; height:52px; border-radius:50%; background:var(--green); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; flex:none; }
+  .creator .name { font-weight:700; font-size:16px; }
+  .creator .handle { color:var(--muted); font-size:13px; }
+  .ok { color:var(--green-dark); font-weight:700; font-size:13px; }
+  label.lbl { display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
+  textarea, input[type="datetime-local"], input[type="file"] { width:100%; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:14px; font-family:inherit; }
+  textarea { min-height:74px; resize:vertical; }
+  .radios label, .checks label { display:flex; align-items:center; gap:8px; font-size:14px; padding:5px 0; cursor:pointer; }
+  video.preview { width:180px; border-radius:12px; background:#000; display:none; margin-top:10px; }
+  .note { background:#fbf6e9; border:1px solid #eadfb9; border-radius:10px; padding:10px 12px; font-size:13px; margin-top:10px; display:none; }
+  .post-item { border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-top:12px; }
+  .post-item .meta { font-size:13px; color:var(--muted); margin-top:4px; }
+  .chip { display:inline-block; border-radius:14px; padding:2px 10px; font-size:12px; font-weight:700; background:#eef2e6; color:var(--green-dark); }
+  .chip.pub { background:#e6f4ea; color:#1e7a34; }
+  footer { text-align:center; color:var(--muted); font-size:13px; padding:18px; }
+  footer a { color:var(--green-dark); }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🦘</div>
+  <h1>Kangaroo Post — Creator Studio</h1>
+  <span class="badge">SANDBOX DEMO</span>
+</header>
+<main>
+
+  <!-- Step 1: Connect -->
+  <section class="card" id="connectCard">
+    <h2><span class="step-num">1</span>Connect your TikTok account</h2>
+    <p class="sub">Sign in with TikTok (Login Kit / OAuth). Kangaroo Post never asks for or stores your TikTok password.</p>
+    <div id="connectBefore">
+      <button class="btn-tiktok" id="connectBtn">Log in with TikTok</button>
+      <p class="sub" id="connectingMsg" style="margin-top:10px;"></p>
+    </div>
+    <div id="connectAfter" class="hidden">
+      <div class="creator">
+        <div class="avatar">🦘</div>
+        <div>
+          <div class="name" id="creatorName">ズボラ主婦の暮らしの知恵</div>
+          <div class="handle">@kangaroo.mama.jp</div>
+        </div>
+        <div style="margin-left:auto;" class="ok">✓ Connected</div>
+      </div>
+      <p class="sub" style="margin-top:10px;">Every post is published only to this connected account, and only after your review and approval below.</p>
+    </div>
+  </section>
+
+  <!-- Step 2: Upload & review -->
+  <section class="card hidden" id="postCard">
+    <h2><span class="step-num">2</span>Upload a video and review your post</h2>
+    <p class="sub">Choose a video you created yourself, write the caption, and confirm every setting before scheduling.</p>
+
+    <label class="lbl">Video file (MP4)</label>
+    <input type="file" id="fileInput" accept="video/*">
+    <video class="preview" id="videoPreview" controls playsinline></video>
+    <div class="meta" id="fileName" style="font-size:13px;color:var(--muted);margin-top:6px;"></div>
+
+    <label class="lbl">Caption</label>
+    <textarea id="caption">寝かしつけが終わってソファに座ったまま力尽きた夜。Yogibo Loungerに体を預けると、ビーズが背中に沿って沈み込んで、座ったまま休める数分が生まれた。ROOMで『寝かしつけ後の10分』と探してね #PR #ワーママ #フルタイムママ #2歳児ママ #寝かしつけ</textarea>
+
+    <label class="lbl">Who can watch this video (privacy level)</label>
+    <div class="radios" id="privacyGroup">
+      <label><input type="radio" name="privacy" value="PUBLIC_TO_EVERYONE"> Everyone (public)</label>
+      <label><input type="radio" name="privacy" value="MUTUAL_FOLLOW_FRIENDS"> Mutual followers</label>
+      <label><input type="radio" name="privacy" value="SELF_ONLY"> Only me (private)</label>
+    </div>
+
+    <label class="lbl">Interaction settings</label>
+    <div class="checks">
+      <label><input type="checkbox" id="allowComment" checked> Allow comments</label>
+      <label><input type="checkbox" id="allowDuet"> Allow Duet</label>
+      <label><input type="checkbox" id="allowStitch"> Allow Stitch</label>
+    </div>
+
+    <label class="lbl">Commercial content disclosure</label>
+    <div class="radios" id="disclosureGroup">
+      <label><input type="radio" name="disclosure" value="none" checked> No brand content in this post</label>
+      <label><input type="radio" name="disclosure" value="your_brand"> Your Brand — this post promotes my own brand / business</label>
+      <label><input type="radio" name="disclosure" value="branded"> Branded Content — this post promotes a third-party brand</label>
+    </div>
+    <div class="note" id="disclosureNote">This post will be labelled as promotional content on TikTok. Posts that introduce products must always use disclosure and include #PR in the caption.</div>
+
+    <label class="lbl">Music usage</label>
+    <div class="checks">
+      <label><input type="checkbox" id="musicConsent"> By posting, I agree to TikTok's Music Usage Confirmation.</label>
+    </div>
+
+    <label class="lbl">Scheduled date and time</label>
+    <input type="datetime-local" id="scheduleAt" value="2026-10-30T21:30">
+
+    <div style="margin-top:18px;">
+      <button class="btn-primary" id="scheduleBtn" disabled>Approve and schedule this post</button>
+      <p class="sub" id="scheduleHint" style="margin-top:8px;">Please select a privacy level and accept the Music Usage Confirmation to continue.</p>
+    </div>
+  </section>
+
+  <!-- Step 3: Scheduled posts -->
+  <section class="card hidden" id="listCard">
+    <h2><span class="step-num">3</span>Your scheduled posts</h2>
+    <p class="sub">At the scheduled time, Kangaroo Post publishes the approved post to your TikTok profile using the Content Posting API (Direct Post). You can edit or cancel any post before it is published.</p>
+    <div id="postList"></div>
+  </section>
+
+</main>
+<footer>
+  Kangaroo Post —
+  <a href="./privacy-policy.html">Privacy Policy</a> ·
+  <a href="./terms-of-service.html">Terms of Service</a>
+</footer>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // Step 1: connect (sandbox OAuth demonstration)
+  $('connectBtn').addEventListener('click', () => {
+    $('connectingMsg').textContent = 'Connecting to TikTok (sandbox authorization)…';
+    setTimeout(() => {
+      $('connectBefore').classList.add('hidden');
+      $('connectAfter').classList.remove('hidden');
+      $('postCard').classList.remove('hidden');
+      $('listCard').classList.remove('hidden');
+    }, 1200);
+  });
+
+  // Step 2: file preview
+  $('fileInput').addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    $('fileName').textContent = f.name;
+    const v = $('videoPreview');
+    v.src = URL.createObjectURL(f);
+    v.style.display = 'block';
+  });
+
+  // Disclosure note
+  document.querySelectorAll('input[name="disclosure"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const val = document.querySelector('input[name="disclosure"]:checked').value;
+      $('disclosureNote').style.display = (val === 'none') ? 'none' : 'block';
+    });
+  });
+
+  // Schedule button gating: privacy must be actively selected + music consent required
+  function refreshGate() {
+    const privacyOk = !!document.querySelector('input[name="privacy"]:checked');
+    const musicOk = $('musicConsent').checked;
+    $('scheduleBtn').disabled = !(privacyOk && musicOk);
+    $('scheduleHint').textContent = (privacyOk && musicOk)
+      ? 'Ready. Only posts you approve here are published.'
+      : 'Please select a privacy level and accept the Music Usage Confirmation to continue.';
+  }
+  document.querySelectorAll('input[name="privacy"]').forEach(r => r.addEventListener('change', refreshGate));
+  $('musicConsent').addEventListener('change', refreshGate);
+
+  // Step 3: schedule -> status flow
+  $('scheduleBtn').addEventListener('click', () => {
+    const when = $('scheduleAt').value.replace('T', ' ');
+    const privacyLabel = document.querySelector('input[name="privacy"]:checked').parentElement.textContent.trim();
+    const disclosureVal = document.querySelector('input[name="disclosure"]:checked').value;
+    const disclosureLabel = disclosureVal === 'none' ? 'No disclosure' : (disclosureVal === 'your_brand' ? 'Your Brand' : 'Branded Content');
+    const fileLabel = $('fileName').textContent || 'video.mp4';
+    const captionText = $('caption').value;
+
+    const item = document.createElement('div');
+    item.className = 'post-item';
+    item.innerHTML =
+      '<div><strong>' + fileLabel + '</strong> <span class="chip">Scheduled</span></div>' +
+      '<div class="meta">' + captionText + '</div>' +
+      '<div class="meta">Publish at: ' + when + ' · Privacy: ' + privacyLabel + ' · Disclosure: ' + disclosureLabel + ' · Account: @kangaroo.mama.jp</div>' +
+      '<div style="margin-top:8px;"><button class="btn-ghost cancelBtn">Cancel this post</button></div>';
+    $('postList').prepend(item);
+
+    const chip = item.querySelector('.chip');
+    const cancelBtn = item.querySelector('.cancelBtn');
+    cancelBtn.addEventListener('click', () => { item.remove(); });
+    setTimeout(() => { chip.textContent = 'Ready — will publish via Direct Post at the scheduled time'; }, 2500);
+
+    $('postCard').scrollIntoView({ behavior: 'smooth' });
+    $('listCard').scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
